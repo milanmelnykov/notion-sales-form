@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        textarea { min-height: 80px; }
+        .product-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .product-item input, .product-item select { width: calc(25% - 10px); display: inline-block; margin-right: 10px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .add-btn { background: #0066cc; color: white; border: none; }
+        .remove-btn { background: #cc0000; color: white; border: none; }
+        .submit-btn { background: #00cc66; color: white; border: none; font-size: 16px; }
+        #message { margin-top: 20px; padding: 10px; display: none; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>Create Order</h1>
+    <div id="loadingProducts" class="loading">Loading products...</div>
+    <form id="orderForm" style="display: none;">
+        <div class="form-group">
+            <label>Customer Name:</label>
+            <input type="text" id="customerName" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Telegram ID / Contact:</label>
+            <input type="text" id="customerEmail" required>
+        </div>
+
+        <div class="form-group">
+            <label>Notes (optional):</label>
+            <textarea id="notes"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Designs (optional):</label>
+            <input type="file" id="photo" accept="image/*" multiple>
+        </div>
+
+        <h3>Products</h3>
+        <div id="productsContainer"></div>
+        
+        <button type="button" class="add-btn" onclick="addProduct()">+ Add Product</button>
+        <br><br>
+        <button type="submit" class="submit-btn">Submit Order</button>
+    </form>
+
+    <div id="message"></div>
+
+    <script>
+        let productCount = 0;
+        let products = [];
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                products = await response.json();
+                document.getElementById('loadingProducts').style.display = 'none';
+                document.getElementById('orderForm').style.display = 'block';
+                addProduct();
+            } catch (error) {
+                showMessage('Error loading products: ' + error.message, 'error');
+            }
+        }
+
+        function addProduct() {
+            productCount++;
+            const container = document.getElementById('productsContainer');
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product-item';
+            productDiv.id = `product-${productCount}`;
+            
+            productDiv.innerHTML = `
+                <select name="product" required onchange="updateProductOptions(${productCount})">
+                    <option value="">Select Product</option>
+                    ${products.map(p => `<option value="${p.id}" data-colors='${JSON.stringify(p.colors)}' data-sizes='${JSON.stringify(p.sizes)}'>${p.name}</option>`).join('')}
+                </select>
+                <select name="color" required disabled>
+                    <option value="">Color</option>
+                </select>
+                <select name="size" required disabled>
+                    <option value="">Size</option>
+                </select>
+                <input type="number" name="quantity" placeholder="Qty" min="1" required>
+                <button type="button" class="remove-btn" onclick="removeProduct(${productCount})">Remove</button>
+            `;
+            
+            container.appendChild(productDiv);
+        }
+
+        function updateProductOptions(productId) {
+            const productDiv = document.getElementById(`product-${productId}`);
+            const productSelect = productDiv.querySelector('[name="product"]');
+            const colorSelect = productDiv.querySelector('[name="color"]');
+            const sizeSelect = productDiv.querySelector('[name="size"]');
+            
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            
+            if (selectedOption.value) {
+                const colors = JSON.parse(selectedOption.dataset.colors || '[]');
+                const sizes = JSON.parse(selectedOption.dataset.sizes || '[]');
+                
+                // Update colors
+                colorSelect.innerHTML = '<option value="">Select Color</option>' + 
+                    colors.map(c => `<option value="${c}">${c}</option>`).join('');
+                colorSelect.disabled = false;
+                
+                // Update sizes
+                sizeSelect.innerHTML = '<option value="">Select Size</option>' + 
+                    sizes.map(s => `<option value="${s}">${s}</option>`).join('');
+                sizeSelect.disabled = false;
+            } else {
+                colorSelect.innerHTML = '<option value="">Color</option>';
+                colorSelect.disabled = true;
+                sizeSelect.innerHTML = '<option value="">Size</option>';
+                sizeSelect.disabled = true;
+            }
+        }
+
+        function removeProduct(id) {
+            document.getElementById(`product-${id}`).remove();
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+            const notes = document.getElementById('notes').value;
+            const photoFiles = document.getElementById('photo').files;
+            
+            const productItems = [];
+            document.querySelectorAll('.product-item').forEach(item => {
+                const productSelect = item.querySelector('[name="product"]');
+                productItems.push({
+                    productId: productSelect.value,
+                    productName: productSelect.options[productSelect.selectedIndex].text,
+                    color: item.querySelector('[name="color"]').value,
+                    size: item.querySelector('[name="size"]').value,
+                    quantity: parseInt(item.querySelector('[name="quantity"]').value)
+                });
+            });
+
+            if (productItems.length === 0) {
+                showMessage('Please add at least one product', 'error');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('data', JSON.stringify({ 
+                    customerName, 
+                    customerEmail, 
+                    notes,
+                    items: productItems 
+                }));
+                
+                for (let i = 0; i < photoFiles.length; i++) {
+                    formData.append('photos', photoFiles[i]);
+                }
+
+                const response = await fetch('/api/create-order', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Order created successfully!', 'success');
+                    document.getElementById('orderForm').reset();
+                    document.getElementById('productsContainer').innerHTML = '';
+                    productCount = 0;
+                    addProduct();
+                } else {
+                    showMessage('Error: ' + result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('Error submitting order: ' + error.message, 'error');
+            }
+        });
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = type;
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 5000);
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>
