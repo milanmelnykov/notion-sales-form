@@ -3,58 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Form</title>
+    <title>GHOSTLAB - ORDER FORM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'calligraphy': ['Cinzel', 'serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
-        textarea { min-height: 80px; }
-        .product-item { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
-        .product-item input, .product-item select { width: calc(25% - 10px); display: inline-block; margin-right: 10px; }
-        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
-        .add-btn { background: #0066cc; color: white; border: none; }
-        .remove-btn { background: #cc0000; color: white; border: none; }
-        .submit-btn { background: #00cc66; color: white; border: none; font-size: 16px; }
-        #message { margin-top: 20px; padding: 10px; display: none; }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .loading { color: #666; font-style: italic; }
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            top: 50%;
+            right: 0.75rem;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #ffffff;
+            font-size: 0.75rem;
+        }
+        .select-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 1.75rem;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
     </style>
 </head>
-<body>
-    <h1>Create Order</h1>
-    <div id="loadingProducts" class="loading">Loading products...</div>
-    <form id="orderForm" style="display: none;">
-        <div class="form-group">
-            <label>Customer Name:</label>
-            <input type="text" id="customerName" required>
+<body class="min-h-screen bg-black text-white font-mono grain">
+    
+    <div class="max-w-3xl mx-auto p-8">
+        <!-- Header -->
+        <div class="text-center mb-12 border-b border-gray-600 pb-8">
+            <h1 class="text-6xl font-calligraphy font-bold mb-2 tracking-wide">
+                GHOSTLAB
+            </h1>
+            <p class="text-gray-400 text-sm uppercase tracking-widest font-bold">
+                Military Merchandise Order Form
+            </p>
         </div>
         
-        <div class="form-group">
-            <label>Telegram ID / Contact:</label>
-            <input type="text" id="customerEmail" required>
+        <div id="loadingProducts" class="text-center text-gray-400 mb-8">
+            Loading inventory...
         </div>
-
-        <div class="form-group">
-            <label>Notes (optional):</label>
-            <textarea id="notes"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Designs (optional):</label>
-            <input type="file" id="photo" accept="image/*" multiple>
-        </div>
-
-        <h3>Products</h3>
-        <div id="productsContainer"></div>
         
-        <button type="button" class="add-btn" onclick="addProduct()">+ Add Product</button>
-        <br><br>
-        <button type="submit" class="submit-btn">Submit Order</button>
-    </form>
+        <form id="orderForm" class="hidden space-y-8">
+            <!-- Contact Information -->
+            <section class="border border-gray-600 p-6">
+                <h2 class="text-2xl font-calligraphy font-bold mb-6 border-b border-gray-700 pb-2">Contact Information</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2 font-bold">Name</label>
+                        <input type="text" id="customerName" required placeholder="Enter your full name"
+                               class="w-full px-4 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors placeholder-gray-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2 font-bold">Telegram Username</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">@</span>
+                            <input type="text" id="customerEmail" required placeholder="username"
+                                   class="w-full pl-8 pr-4 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors placeholder-gray-500">
+                        </div>
+                    </div>
 
-    <div id="message"></div>
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2 font-bold">Notes</label>
+                        <textarea id="notes" rows="3" placeholder="Special instructions or requirements"
+                                  class="w-full px-4 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors resize-none placeholder-gray-500"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2 font-bold">Designs</label>
+                        <div class="border border-gray-600 p-4 bg-black hover:border-white transition-colors">
+                            <input type="file" id="photo" accept="image/*" multiple 
+                                   class="w-full text-white text-sm file:bg-gray-700 file:text-white file:border file:border-gray-500 file:px-3 file:py-2 file:mr-3 file:rounded file:text-sm hover:file:bg-gray-600 transition-colors">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Order Items -->
+            <section class="border border-gray-600 p-6">
+                <h2 class="text-2xl font-calligraphy font-bold mb-6 border-b border-gray-700 pb-2">Order Items</h2>
+                <div id="productsContainer" class="space-y-4"></div>
+                
+                <button type="button" onclick="addProduct()" 
+                        class="mt-6 bg-black border border-gray-600 text-white px-6 py-3 hover:border-white hover:bg-gray-900 transition-colors">
+                    Add Item
+                </button>
+            </section>
+            
+            <!-- Submit -->
+            <button type="submit" id="submitBtn"
+                    class="w-full bg-white text-black px-8 py-4 font-calligraphy font-bold text-xl hover:bg-gray-200 transition-colors disabled:bg-gray-600 disabled:text-gray-400">
+                <span id="submitText">Submit Order</span>
+            </button>
+        </form>
+
+        <div id="message" class="hidden mt-6 p-4 border"></div>
+    </div>
 
     <script>
         let productCount = 0;
@@ -65,7 +142,7 @@
                 const response = await fetch('/api/products');
                 products = await response.json();
                 document.getElementById('loadingProducts').style.display = 'none';
-                document.getElementById('orderForm').style.display = 'block';
+                document.getElementById('orderForm').classList.remove('hidden');
                 addProduct();
             } catch (error) {
                 showMessage('Error loading products: ' + error.message, 'error');
@@ -73,25 +150,48 @@
         }
 
         function addProduct() {
-            productCount++;
             const container = document.getElementById('productsContainer');
+            const currentItems = container.querySelectorAll('[id^="product-"]').length;
+            const newItemNumber = currentItems + 1;
+            
+            productCount++;
             const productDiv = document.createElement('div');
-            productDiv.className = 'product-item';
+            productDiv.className = 'border border-gray-700 p-4';
             productDiv.id = `product-${productCount}`;
             
             productDiv.innerHTML = `
-                <select name="product" required onchange="updateProductOptions(${productCount})">
-                    <option value="">Select Product</option>
-                    ${products.map(p => `<option value="${p.id}" data-colors='${JSON.stringify(p.colors)}' data-sizes='${JSON.stringify(p.sizes)}'>${p.name}</option>`).join('')}
-                </select>
-                <select name="color" required disabled>
-                    <option value="">Color</option>
-                </select>
-                <select name="size" required disabled>
-                    <option value="">Size</option>
-                </select>
-                <input type="number" name="quantity" placeholder="Qty" min="1" required>
-                <button type="button" class="remove-btn" onclick="removeProduct(${productCount})">Remove</button>
+                <div class="text-xs text-gray-500 mb-3">Item ${newItemNumber}</div>
+                <div class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="select-wrapper">
+                            <select name="product" required onchange="updateProductOptions(${productCount})"
+                                    class="w-full px-3 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors">
+                                <option value="">Select</option>
+                                ${products.map(p => `<option value="${p.id}" data-colors='${JSON.stringify(p.colors)}' data-sizes='${JSON.stringify(p.sizes)}'>${p.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <input type="number" name="quantity" placeholder="Qty" min="1" value="1" required
+                               class="px-3 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="select-wrapper">
+                            <select name="color" required disabled
+                                    class="w-full px-3 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors disabled:opacity-50">
+                                <option value="">Color</option>
+                            </select>
+                        </div>
+                        <div class="select-wrapper">
+                            <select name="size" required disabled
+                                    class="w-full px-3 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors disabled:opacity-50">
+                                <option value="">Size</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeProduct(${productCount})"
+                            class="w-full bg-black border border-gray-600 text-gray-400 px-3 py-3 hover:border-gray-400 hover:text-white transition-colors">
+                        Remove
+                    </button>
+                </div>
             `;
             
             container.appendChild(productDiv);
@@ -109,20 +209,22 @@
                 const colors = JSON.parse(selectedOption.dataset.colors || '[]');
                 const sizes = JSON.parse(selectedOption.dataset.sizes || '[]');
                 
-                // Update colors
-                colorSelect.innerHTML = '<option value="">Select Color</option>' + 
+                colorSelect.innerHTML = '<option value="">Color</option>' + 
                     colors.map(c => `<option value="${c}">${c}</option>`).join('');
                 colorSelect.disabled = false;
+                colorSelect.classList.remove('opacity-50');
                 
-                // Update sizes
-                sizeSelect.innerHTML = '<option value="">Select Size</option>' + 
+                sizeSelect.innerHTML = '<option value="">Size</option>' + 
                     sizes.map(s => `<option value="${s}">${s}</option>`).join('');
                 sizeSelect.disabled = false;
+                sizeSelect.classList.remove('opacity-50');
             } else {
                 colorSelect.innerHTML = '<option value="">Color</option>';
                 colorSelect.disabled = true;
+                colorSelect.classList.add('opacity-50');
                 sizeSelect.innerHTML = '<option value="">Size</option>';
                 sizeSelect.disabled = true;
+                sizeSelect.classList.add('opacity-50');
             }
         }
 
@@ -133,25 +235,37 @@
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.innerHTML = '<span class="loading-dots">Processing order</span>';
+            showMessage('Order in progress, please wait a few seconds...', 'loading');
+            
             const customerName = document.getElementById('customerName').value;
             const customerEmail = document.getElementById('customerEmail').value;
             const notes = document.getElementById('notes').value;
             const photoFiles = document.getElementById('photo').files;
             
             const productItems = [];
-            document.querySelectorAll('.product-item').forEach(item => {
+            document.querySelectorAll('[id^="product-"]').forEach(item => {
                 const productSelect = item.querySelector('[name="product"]');
-                productItems.push({
-                    productId: productSelect.value,
-                    productName: productSelect.options[productSelect.selectedIndex].text,
-                    color: item.querySelector('[name="color"]').value,
-                    size: item.querySelector('[name="size"]').value,
-                    quantity: parseInt(item.querySelector('[name="quantity"]').value)
-                });
+                if (productSelect.value) {
+                    productItems.push({
+                        productId: productSelect.value,
+                        productName: productSelect.options[productSelect.selectedIndex].text,
+                        color: item.querySelector('[name="color"]').value,
+                        size: item.querySelector('[name="size"]').value,
+                        quantity: parseInt(item.querySelector('[name="quantity"]').value)
+                    });
+                }
             });
 
             if (productItems.length === 0) {
-                showMessage('Please add at least one product', 'error');
+                submitBtn.disabled = false;
+                submitText.textContent = 'Submit Order';
+                showMessage('Please add at least one item', 'error');
                 return;
             }
 
@@ -176,7 +290,7 @@
                 const result = await response.json();
                 
                 if (response.ok) {
-                    showMessage('Order created successfully!', 'success');
+                    showMessage('Order submitted successfully', 'success');
                     document.getElementById('orderForm').reset();
                     document.getElementById('productsContainer').innerHTML = '';
                     productCount = 0;
@@ -186,15 +300,32 @@
                 }
             } catch (error) {
                 showMessage('Error submitting order: ' + error.message, 'error');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.textContent = 'Submit Order';
             }
         });
 
         function showMessage(text, type) {
             const msg = document.getElementById('message');
             msg.textContent = text;
-            msg.className = type;
-            msg.style.display = 'block';
-            setTimeout(() => msg.style.display = 'none', 5000);
+            let className = 'mt-6 p-4 border ';
+            
+            if (type === 'success') {
+                className += 'border-white text-white bg-black';
+            } else if (type === 'loading') {
+                className += 'border-gray-400 text-gray-300 bg-black';
+            } else {
+                className += 'border-gray-400 text-gray-400 bg-black';
+            }
+            
+            msg.className = className;
+            msg.classList.remove('hidden');
+            
+            if (type !== 'loading') {
+                setTimeout(() => msg.classList.add('hidden'), 5000);
+            }
         }
 
         loadProducts();
