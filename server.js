@@ -2,13 +2,21 @@ const express = require('express');
 const multer = require('multer');
 const { Client } = require('@notionhq/client');
 const fetch = require('node-fetch');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
 
 app.use(express.json());
-app.use(express.static('.'));
+
+// Serve order form at /order endpoint
+app.get('/order', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Serve other static files
+app.use(express.static('.', { index: false }));
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 
@@ -27,7 +35,8 @@ app.get('/api/products', async (req, res) => {
             id: page.id,
             name: page.properties.Name?.title[0]?.plain_text || 'Unnamed',
             colors: page.properties.Color?.multi_select?.map(c => c.name) || [],
-            sizes: page.properties['Available Sizes']?.multi_select?.map(s => s.name) || []
+            sizes: page.properties['Available Sizes']?.multi_select?.map(s => s.name) || [],
+            price: page.properties.Price?.number || 0
         }));
         
         res.json(products);

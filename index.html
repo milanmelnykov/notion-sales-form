@@ -121,6 +121,14 @@
                         class="mt-6 bg-black border border-gray-600 text-white px-6 py-3 hover:border-white hover:bg-gray-900 transition-colors">
                     Add Item
                 </button>
+
+                <!-- Order Total -->
+                <div class="mt-6 p-4 bg-gray-900 border border-gray-600">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-calligraphy font-bold text-white">Order Total:</span>
+                        <span class="text-2xl font-bold text-white" id="orderTotal">₴0.00</span>
+                    </div>
+                </div>
             </section>
             
             <!-- Submit -->
@@ -167,10 +175,10 @@
                             <select name="product" required onchange="updateProductOptions(${productCount})"
                                     class="w-full px-3 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors">
                                 <option value="">Select</option>
-                                ${products.map(p => `<option value="${p.id}" data-colors='${JSON.stringify(p.colors)}' data-sizes='${JSON.stringify(p.sizes)}'>${p.name}</option>`).join('')}
+                                ${products.map(p => `<option value="${p.id}" data-colors='${JSON.stringify(p.colors)}' data-sizes='${JSON.stringify(p.sizes)}' data-price="${p.price || 0}">${p.name}</option>`).join('')}
                             </select>
                         </div>
-                        <input type="number" name="quantity" placeholder="Qty" min="1" value="1" required
+                        <input type="number" name="quantity" placeholder="Qty" min="1" value="1" required onchange="updateItemPrice(${productCount})"
                                class="px-3 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -186,6 +194,10 @@
                                 <option value="">Size</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-900 border border-gray-600">
+                        <span class="text-gray-400 text-sm">Item Total:</span>
+                        <span class="text-white font-bold" id="itemPrice-${productCount}">₴0.00</span>
                     </div>
                     <button type="button" onclick="removeProduct(${productCount})"
                             class="w-full bg-black border border-gray-600 text-gray-400 px-3 py-3 hover:border-gray-400 hover:text-white transition-colors">
@@ -226,10 +238,37 @@
                 sizeSelect.disabled = true;
                 sizeSelect.classList.add('opacity-50');
             }
+            
+            updateItemPrice(productId);
+        }
+
+        function updateItemPrice(productId) {
+            const productDiv = document.getElementById(`product-${productId}`);
+            const productSelect = productDiv.querySelector('[name="product"]');
+            const quantityInput = productDiv.querySelector('[name="quantity"]');
+            const itemPriceElement = document.getElementById(`itemPrice-${productId}`);
+            
+            const selectedOption = productSelect.options[productSelect.selectedIndex];
+            const price = parseFloat(selectedOption.dataset.price || 0);
+            const quantity = parseInt(quantityInput.value || 0);
+            const itemTotal = price * quantity;
+            
+            itemPriceElement.textContent = `₴${itemTotal.toFixed(2)}`;
+            updateOrderTotal();
+        }
+
+        function updateOrderTotal() {
+            let total = 0;
+            document.querySelectorAll('[id^="itemPrice-"]').forEach(priceElement => {
+                const price = parseFloat(priceElement.textContent.replace('₴', ''));
+                total += price;
+            });
+            document.getElementById('orderTotal').textContent = `₴${total.toFixed(2)}`;
         }
 
         function removeProduct(id) {
             document.getElementById(`product-${id}`).remove();
+            updateOrderTotal();
         }
 
         document.getElementById('orderForm').addEventListener('submit', async (e) => {
