@@ -64,11 +64,24 @@ class NotionService {
         return uploadId;
     }
 
-    async createOrderCandidate(orderData) {
+    async createOrder(orderData) {
+        // Ensure telegram ID has @ prefix (for non-authenticated orders)
+        let telegramId = orderData.customerEmail || '';
+        if (telegramId && !telegramId.startsWith('@')) {
+            telegramId = '@' + telegramId;
+        }
+
         const orderProps = {
-            'Name': { title: [{ text: { content: orderData.customerName.trim() } }] },
-            'Telegram ID': { rich_text: [{ text: { content: orderData.customerEmail || '' } }] }
+            'Name': { title: [{ text: { content: orderData.customerName?.trim() || 'Order' } }] }
         };
+
+        // If client is authenticated, link to client
+        if (orderData.clientId) {
+            orderProps['Client'] = { relation: [{ id: orderData.clientId }] };
+        } else {
+            // For non-authenticated orders, store contact info directly
+            orderProps['Telegram ID'] = { rich_text: [{ text: { content: telegramId } }] };
+        }
 
         if (orderData.notes) {
             orderProps['Notes'] = { rich_text: [{ text: { content: orderData.notes } }] };
@@ -85,7 +98,7 @@ class NotionService {
         }
 
         return await notion.pages.create({
-            parent: { database_id: DATABASES.ORDER_CANDIDATES },
+            parent: { database_id: DATABASES.ORDERS },
             properties: orderProps
         });
     }
@@ -95,7 +108,7 @@ class NotionService {
             parent: { database_id: DATABASES.ORDER_ITEMS },
             properties: {
                 'Item': { title: [{ text: { content: `${itemData.productName} - ${itemData.color} - ${itemData.size} - ${itemData.quantity}x` } }] },
-                'Order Candidate': { relation: [{ id: orderId }] },
+                'Order': { relation: [{ id: orderId }] },
                 'Product': { relation: [{ id: itemData.productId }] },
                 'Color': { select: { name: itemData.color } },
                 'Size': { select: { name: itemData.size } },

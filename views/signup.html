@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOSTLAB - SIGN UP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'calligraphy': ['Cinzel', 'serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .grain {
+            background-image: 
+                radial-gradient(circle at 20% 50%, transparent 20%, rgba(120,120,120,0.03) 21%, rgba(120,120,120,0.03) 34%, transparent 35%);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-black text-white font-mono grain">
+    
+    <div class="max-w-md mx-auto p-8 min-h-screen flex flex-col justify-center">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-calligraphy font-bold mb-2 tracking-wide">
+                GHOSTLAB
+            </h1>
+            <p class="text-gray-400 text-sm uppercase tracking-widest font-bold">
+                Client Registration
+            </p>
+        </div>
+        
+        <form id="signupForm" class="space-y-6">
+            <div class="border border-gray-600 p-6">
+                <h2 class="text-2xl font-calligraphy font-bold mb-6 text-center">Sign Up</h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2 font-bold">Name</label>
+                        <input type="text" id="name" required placeholder="Your full name"
+                               class="w-full px-4 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors placeholder-gray-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2 font-bold">Email</label>
+                        <input type="email" id="email" required placeholder="your@email.com"
+                               class="w-full px-4 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors placeholder-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2 font-bold">Telegram Username</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">@</span>
+                            <input type="text" id="telegramUsername" placeholder="username"
+                                   class="w-full pl-8 pr-4 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors placeholder-gray-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-gray-400 mb-2 font-bold">Phone Number (Optional)</label>
+                        <input type="tel" id="phoneNumber" placeholder="+380..."
+                               class="w-full px-4 py-3 bg-black border border-gray-600 text-white focus:border-white focus:outline-none transition-colors placeholder-gray-500">
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn"
+                    class="w-full bg-white text-black px-8 py-4 font-calligraphy font-bold text-xl hover:bg-gray-200 transition-colors disabled:bg-gray-600 disabled:text-gray-400">
+                <span id="submitText">Sign Up</span>
+            </button>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-gray-400">Already have an account?</p>
+            <a href="/signin" class="text-white hover:text-gray-300 font-bold">Sign In</a>
+        </div>
+
+        <div id="message" class="hidden mt-6 p-4 border"></div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>

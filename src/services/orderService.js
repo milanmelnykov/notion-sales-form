@@ -1,7 +1,7 @@
 const notionService = require('./notionService');
 
 class OrderService {
-    async createOrder(orderData, files) {
+    async createOrder(orderData, files, clientId = null) {
         // Upload photos if provided
         const fileUploadIds = [];
         if (files && files.length > 0) {
@@ -19,10 +19,11 @@ class OrderService {
             }
         }
 
-        // Create order candidate
-        const order = await notionService.createOrderCandidate({
+        // Create order
+        const order = await notionService.createOrder({
             ...orderData,
-            fileUploadIds
+            fileUploadIds,
+            clientId
         });
 
         // Create order items

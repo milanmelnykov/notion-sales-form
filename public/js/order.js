@@ -3,8 +3,8 @@ let products = [];
 
 async function loadProducts() {
     try {
-        const response = await fetch('/api/products');
-        products = await response.json();
+        // Use cached products
+        products = await getCachedProducts();
         document.getElementById('loadingProducts').style.display = 'none';
         document.getElementById('orderForm').classList.remove('hidden');
         addProduct();
@@ -138,8 +138,6 @@ document.getElementById('orderForm').addEventListener('submit', async (e) => {
     submitText.innerHTML = '<span class="loading-dots">Processing order</span>';
     showMessage('Order in progress, please wait a few seconds...', 'loading');
     
-    const customerName = document.getElementById('customerName').value;
-    const customerEmail = document.getElementById('customerEmail').value;
     const notes = document.getElementById('notes').value;
     const photoFiles = document.getElementById('photo').files;
     
@@ -167,8 +165,6 @@ document.getElementById('orderForm').addEventListener('submit', async (e) => {
     try {
         const formData = new FormData();
         formData.append('data', JSON.stringify({ 
-            customerName, 
-            customerEmail, 
             notes,
             items: productItems 
         }));
@@ -185,11 +181,12 @@ document.getElementById('orderForm').addEventListener('submit', async (e) => {
         const result = await response.json();
         
         if (response.ok) {
-            showMessage('Order submitted successfully', 'success');
-            document.getElementById('orderForm').reset();
-            document.getElementById('productsContainer').innerHTML = '';
-            productCount = 0;
-            addProduct();
+            // Clear cached client data to refresh order history
+            appCache.clear('clientData');
+            showMessage('Order submitted successfully! Redirecting to dashboard...', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 2000);
         } else {
             showMessage('Error: ' + result.error, 'error');
         }

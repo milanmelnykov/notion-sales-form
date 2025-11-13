@@ -3,27 +3,27 @@ const orderService = require('../services/orderService');
 class OrderController {
     async createOrder(req, res) {
         try {
-            const { customerName, customerEmail, notes, items } = JSON.parse(req.body.data);
+            const { notes, items } = JSON.parse(req.body.data);
+            const clientId = req.session.client?.id;
 
-            if (!customerName || customerName.trim() === '') {
-                return res.status(400).json({ error: 'Customer name is required' });
+            // Require authentication for new order flow
+            if (!clientId) {
+                return res.status(401).json({ error: 'Authentication required' });
             }
 
-            const result = await orderService.createOrder({
-                customerName,
-                customerEmail,
+            const orderData = {
+                customerName: req.session.client.name,
+                customerEmail: req.session.client.telegramUsername,
                 notes,
                 items
-            }, req.files);
+            };
+
+            const result = await orderService.createOrder(orderData, req.files, clientId);
 
             res.json(result);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
-    }
-
-    renderOrderForm(req, res) {
-        res.sendFile(path.join(__dirname, '../../views/order.html'));
     }
 }
 
