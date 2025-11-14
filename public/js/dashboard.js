@@ -132,7 +132,10 @@ function formatDate(dateString) {
 
 async function signOut() {
     try {
-        const response = await fetch('/auth/signout', { method: 'POST' });
+        const response = await fetch('/auth/signout', { 
+            method: 'POST',
+            credentials: 'same-origin'
+        });
         
         if (response.ok) {
             clearAuthCache(); // Clear cached data

@@ -32,7 +32,14 @@ class AuthController {
             }
 
             req.session.client = client;
-            res.json({ success: true, client });
+            
+            // Force session save
+            req.session.save((err) => {
+                if (err) {
+                    return res.status(500).json({ error: 'Session save failed' });
+                }
+                res.json({ success: true, client });
+            });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

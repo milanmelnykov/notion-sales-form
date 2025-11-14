@@ -181,8 +181,6 @@ document.getElementById('orderForm').addEventListener('submit', async (e) => {
         const result = await response.json();
         
         if (response.ok) {
-            // Clear cached client data to refresh order history
-            appCache.clear('clientData');
             showMessage('Order submitted successfully! Redirecting to dashboard...', 'success');
             setTimeout(() => {
                 window.location.href = '/dashboard';
