@@ -1,5 +1,5 @@
 {
-  "name": "notion-sales-form",
+  "name": "ghostlab",
   "version": "1.0.0",
   "description": "Order form with Notion integration",
   "main": "server.js",
