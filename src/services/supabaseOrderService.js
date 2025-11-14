@@ -2,15 +2,46 @@ const { supabase } = require('../config/supabase');
 
 class SupabaseOrderService {
     async createOrder(orderData, files, clientId) {
-        // Handle file uploads (simplified - store as JSON for now)
+        // Handle file uploads to Supabase Storage
         let designs = null;
         if (files && files.length > 0) {
-            designs = files.map(file => ({
-                name: file.originalname,
-                size: file.size,
-                type: file.mimetype
-                // In production, upload to Supabase Storage and store URLs
-            }));
+            designs = [];
+            
+            for (const file of files) {
+                try {
+                    // Generate unique filename
+                    const fileName = `${Date.now()}-${file.originalname}`;
+                    const filePath = `designs/${clientId}/${fileName}`;
+                    
+                    // Upload to Supabase Storage
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('order-designs')
+                        .upload(filePath, file.buffer, {
+                            contentType: file.mimetype,
+                            upsert: false
+                        });
+                    
+                    if (uploadError) {
+                        console.error('File upload error:', uploadError);
+                        continue;
+                    }
+                    
+                    // Get public URL
+                    const { data: urlData } = supabase.storage
+                        .from('order-designs')
+                        .getPublicUrl(filePath);
+                    
+                    designs.push({
+                        name: file.originalname,
+                        size: file.size,
+                        type: file.mimetype,
+                        url: urlData.publicUrl,
+                        path: filePath
+                    });
+                } catch (error) {
+                    console.error('Design upload failed:', error);
+                }
+            }
         }
 
         // Create order

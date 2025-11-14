@@ -21,6 +21,7 @@ CREATE TABLE clients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
+    pin_hash VARCHAR(255) NOT NULL,
     telegram_username VARCHAR(100),
     phone_number VARCHAR(20),
     notes TEXT,

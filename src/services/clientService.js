@@ -5,6 +5,10 @@ class ClientService {
         return await supabaseClientService.findClientByEmail(email);
     }
 
+    async verifyPin(email, pin) {
+        return await supabaseClientService.verifyPin(email, pin);
+    }
+
     async createClient(clientData) {
         return await supabaseClientService.createClient(clientData);
     }

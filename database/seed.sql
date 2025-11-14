@@ -4,12 +4,12 @@
 SET search_path TO ghostlab, public;
 
 -- 1. Insert Clients
-INSERT INTO clients (name, email, telegram_username, phone_number, notes) VALUES
-('Katya Lololo', 'katya@example.com', '@katya_ua', '+380501234567', 'Regular customer, prefers winter gear'),
-('Alex Petrov', 'alex.petrov@gmail.com', '@alex_tactical', '+380671234567', 'Military unit commander'),
-('Maria Kovalenko', 'maria.k@outlook.com', '@maria_k', '+380931234567', NULL),
-('Dmitro Shevchenko', 'dmitro@protonmail.com', '@dmitro_ghost', '+380661234567', 'Bulk orders for team'),
-('Oksana Bondar', 'oksana.bondar@yahoo.com', '@oksana_b', NULL, 'Designer, needs custom patches');
+INSERT INTO clients (name, email, pin_hash, telegram_username, phone_number, notes) VALUES
+('Katya Lololo', 'katya@example.com', '$2b$10$example.hash.for.pin.1234', '@katya_ua', '+380501234567', 'Regular customer, prefers winter gear'),
+('Alex Petrov', 'alex.petrov@gmail.com', '$2b$10$example.hash.for.pin.5678', '@alex_tactical', '+380671234567', 'Military unit commander'),
+('Maria Kovalenko', 'maria.k@outlook.com', '$2b$10$example.hash.for.pin.9012', '@maria_k', '+380931234567', NULL),
+('Dmitro Shevchenko', 'dmitro@protonmail.com', '$2b$10$example.hash.for.pin.3456', '@dmitro_ghost', '+380661234567', 'Bulk orders for team'),
+('Oksana Bondar', 'oksana.bondar@yahoo.com', '$2b$10$example.hash.for.pin.7890', '@oksana_b', NULL, 'Designer, needs custom patches');
 
 -- 2. Insert Clothing Products
 INSERT INTO clothing_products (name, price, category, material, colors, available_sizes) VALUES

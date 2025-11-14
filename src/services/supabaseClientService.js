@@ -1,4 +1,5 @@
 const { supabase } = require('../config/supabase');
+const bcrypt = require('bcrypt');
 
 class SupabaseClientService {
     async findClientByEmail(email) {
@@ -15,6 +16,23 @@ class SupabaseClientService {
         return data;
     }
 
+    async verifyPin(email, pin) {
+        const client = await this.findClientByEmail(email);
+        if (!client) return null;
+
+        const isValid = await bcrypt.compare(pin, client.pin_hash);
+        if (!isValid) return null;
+
+        return {
+            id: client.id,
+            name: client.name,
+            email: client.email,
+            telegramUsername: client.telegram_username,
+            phoneNumber: client.phone_number,
+            notes: client.notes
+        };
+    }
+
     async createClient(clientData) {
         // Ensure telegram username has @ prefix
         let telegramUsername = clientData.telegramUsername || '';
@@ -22,11 +40,15 @@ class SupabaseClientService {
             telegramUsername = '@' + telegramUsername;
         }
 
+        // Hash the PIN
+        const pinHash = await bcrypt.hash(clientData.pin, 10);
+
         const { data, error } = await supabase
             .from('clients')
             .insert({
                 name: clientData.name.trim(),
                 email: clientData.email,
+                pin_hash: pinHash,
                 telegram_username: telegramUsername,
                 phone_number: clientData.phoneNumber || null,
                 notes: clientData.notes || null

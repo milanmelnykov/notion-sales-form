@@ -19,16 +19,16 @@ class AuthController {
 
     async signIn(req, res) {
         try {
-            const { email } = req.body;
+            const { email, pin } = req.body;
 
-            if (!email) {
-                return res.status(400).json({ error: 'Email is required' });
+            if (!email || !pin) {
+                return res.status(400).json({ error: 'Email and PIN are required' });
             }
 
-            const client = await clientService.findClientByEmail(email);
+            const client = await clientService.verifyPin(email, pin);
             
             if (!client) {
-                return res.status(404).json({ error: 'Client not found. Please sign up first.' });
+                return res.status(401).json({ error: 'Invalid email or PIN' });
             }
 
             req.session.client = client;
@@ -47,10 +47,14 @@ class AuthController {
 
     async signUp(req, res) {
         try {
-            const { name, email, telegramUsername, phoneNumber, notes } = req.body;
+            const { name, email, pin, telegramUsername, phoneNumber, notes } = req.body;
 
-            if (!name || !email) {
-                return res.status(400).json({ error: 'Name and email are required' });
+            if (!name || !email || !pin) {
+                return res.status(400).json({ error: 'Name, email, and PIN are required' });
+            }
+
+            if (pin.length < 4 || pin.length > 6) {
+                return res.status(400).json({ error: 'PIN must be 4-6 digits' });
             }
 
             // Check if client already exists
@@ -62,6 +66,7 @@ class AuthController {
             const client = await clientService.createClient({
                 name,
                 email,
+                pin,
                 telegramUsername,
                 phoneNumber,
                 notes

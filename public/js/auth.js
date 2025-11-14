@@ -10,6 +10,7 @@ if (document.getElementById('signinForm')) {
         submitText.textContent = 'Signing In...';
         
         const email = document.getElementById('email').value;
+        const pin = document.getElementById('pin').value;
         
         try {
             const response = await fetch('/auth/signin', {
@@ -17,7 +18,7 @@ if (document.getElementById('signinForm')) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ email, pin })
             });
             
             const result = await response.json();
@@ -53,6 +54,7 @@ if (document.getElementById('signupForm')) {
         const formData = {
             name: document.getElementById('name').value,
             email: document.getElementById('email').value,
+            pin: document.getElementById('pin').value,
             telegramUsername: document.getElementById('telegramUsername').value,
             phoneNumber: document.getElementById('phoneNumber').value
         };
