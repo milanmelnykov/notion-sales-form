@@ -41,8 +41,7 @@ function displayOrders(orders) {
             <div class="p-6 border-b border-gray-800">
                 <div class="flex justify-between items-start mb-4">
                     <div>
-                        <h3 class="text-xl font-calligraphy font-bold text-white">${order.name}</h3>
-                        ${order.orderId ? `<p class="text-sm text-gray-400 mt-1">Order #${order.orderId}</p>` : ''}
+                        <h3 class="text-xl font-calligraphy font-bold text-white">Order #${order.orderId}</h3>
                     </div>
                     <div class="text-right">
                         <span class="px-3 py-1 text-xs font-bold rounded ${getStatusColor(order.status)}">
@@ -65,26 +64,6 @@ function displayOrders(orders) {
                 </div>
             </div>
             
-            <!-- Order Items -->
-            ${(order.designs && order.designs.length > 0) ? `
-                <div class="p-6 border-t border-gray-800">
-                    <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wide mb-3">Designs</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        ${order.designs.map(design => `
-                            <div class="border border-gray-700 rounded overflow-hidden hover:border-gray-600 transition-colors">
-                                <img src="${design.file?.url || design.external?.url}" 
-                                     alt="${design.name}" 
-                                     class="w-full h-24 object-cover cursor-pointer"
-                                     onclick="openImageModal('${design.file?.url || design.external?.url}', '${design.name}')"
-                                     onerror="this.parentElement.innerHTML='<div class=\\'h-24 flex items-center justify-center text-gray-500 text-xs\\'>Image unavailable</div>'">
-                                <div class="p-2">
-                                    <p class="text-xs text-gray-400 truncate">${design.name}</p>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            ` : ''}
             
             ${(order.items && order.items.length > 0) ? `
                 <div class="p-6">
@@ -98,6 +77,27 @@ function displayOrders(orders) {
                                 <div class="text-right text-sm flex-shrink-0">
                                     <span class="text-gray-400">${item.quantity || 0}x ₴${(item.priceForOne || 0).toFixed(2)} = </span>
                                     <span class="text-white font-bold">₴${(item.totalPrice || 0).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- Order Items -->
+            ${(order.designs && order.designs.length > 0) ? `
+                <div class="p-6 border-t border-gray-800">
+                    <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wide mb-3">Designs</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        ${order.designs.map(design => `
+                            <div class="border border-gray-700 rounded overflow-hidden hover:border-gray-600 transition-colors">
+                                <img src="${design.url}" 
+                                     alt="${design.name}" 
+                                     class="w-full h-24 object-cover cursor-pointer"
+                                     onclick="openImageModal('${design.url}', '${design.name}')"
+                                     onerror="this.parentElement.innerHTML='<div class=\\'h-24 flex items-center justify-center text-gray-500 text-xs\\'>Image unavailable</div>'">
+                                <div class="p-2">
+                                    <p class="text-xs text-gray-400 truncate">${design.name}</p>
                                 </div>
                             </div>
                         `).join('')}
@@ -132,7 +132,10 @@ function formatDate(dateString) {
 
 async function signOut() {
     try {
-        const response = await fetch('/auth/signout', { method: 'POST' });
+        const response = await fetch('/auth/signout', { 
+            method: 'POST',
+            credentials: 'same-origin'
+        });
         
         if (response.ok) {
             clearAuthCache(); // Clear cached data

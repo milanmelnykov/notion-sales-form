@@ -75,17 +75,16 @@ class Cache {
 window.appCache = new Cache();
 
 // Cache API functions
-window.getCachedClientData = async function() {
-    let clientData = appCache.get('clientData');
-    
-    if (!clientData) {
-        const response = await fetch('/auth/client-data');
-        if (!response.ok) {
-            throw new Error('Not authenticated');
-        }
-        clientData = await response.json();
-        appCache.set('clientData', clientData, 15); // Cache for 15 minutes
+window.getCachedClientData = async function(forceRefresh = false) {
+    // Don't cache client data with orders since image URLs expire
+    // Always fetch fresh to get current image URLs
+    const response = await fetch('/auth/client-data', {
+        credentials: 'same-origin'
+    });
+    if (!response.ok) {
+        throw new Error('Not authenticated');
     }
+    const clientData = await response.json();
     
     return clientData;
 };
@@ -98,7 +97,9 @@ window.getCachedProducts = async function(forceRefresh = false) {
     let products = appCache.get('products');
     
     if (!products) {
-        const response = await fetch('/api/products');
+        const response = await fetch('/api/products', {
+            credentials: 'same-origin'
+        });
         if (!response.ok) {
             throw new Error('Failed to load products');
         }
@@ -122,5 +123,6 @@ window.refreshProducts = async function() {
 
 // Clear cache on sign out
 window.clearAuthCache = function() {
-    appCache.clear('clientData');
+    // Clear any remaining cached data
+    appCache.clearAll();
 };

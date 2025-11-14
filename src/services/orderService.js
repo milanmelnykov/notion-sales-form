@@ -1,41 +1,12 @@
-const notionService = require('./notionService');
+const supabaseOrderService = require('./supabaseOrderService');
 
 class OrderService {
     async createOrder(orderData, files, clientId = null) {
-        // Upload photos if provided
-        const fileUploadIds = [];
-        if (files && files.length > 0) {
-            for (const file of files) {
-                try {
-                    const uploadId = await notionService.uploadFile(
-                        file.buffer,
-                        file.originalname,
-                        file.mimetype
-                    );
-                    fileUploadIds.push({ id: uploadId, name: file.originalname });
-                } catch (error) {
-                    console.error('Photo upload failed:', error);
-                }
-            }
-        }
-
-        // Create order
-        const order = await notionService.createOrder({
-            ...orderData,
-            fileUploadIds,
-            clientId
-        });
-
-        // Create order items
-        for (const item of orderData.items) {
-            await notionService.createOrderItem(item, order.id);
-        }
-
-        return { success: true, orderId: order.id };
+        return await supabaseOrderService.createOrder(orderData, files, clientId);
     }
 
     async getProducts() {
-        return await notionService.getProducts();
+        return await supabaseOrderService.getProducts();
     }
 }
 

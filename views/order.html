@@ -85,7 +85,26 @@
         </div>
         
         <form id="orderForm" class="hidden space-y-8">
-            <!-- Order Notes -->
+            <!-- Order Items -->
+            <section class="border border-gray-600 p-6">
+                <h2 class="text-2xl font-calligraphy font-bold mb-6 border-b border-gray-700 pb-2">Order Items</h2>
+                <div id="productsContainer" class="space-y-4"></div>
+                
+                <button type="button" onclick="addProduct()" 
+                        class="mt-6 bg-black border border-gray-600 text-white px-6 py-3 hover:border-white hover:bg-gray-900 transition-colors">
+                    Add Item
+                </button>
+
+                <!-- Order Total -->
+                <div class="mt-6 p-4 bg-gray-900 border border-gray-600">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xl font-calligraphy font-bold text-white">Order Total:</span>
+                        <span class="text-2xl font-bold text-white" id="orderTotal">₴0.00</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Order Details -->
             <section class="border border-gray-600 p-6">
                 <h2 class="text-2xl font-calligraphy font-bold mb-6 border-b border-gray-700 pb-2">Order Details</h2>
                 
@@ -102,25 +121,6 @@
                             <input type="file" id="photo" accept="image/*" multiple 
                                    class="w-full text-white text-sm file:bg-gray-700 file:text-white file:border file:border-gray-500 file:px-3 file:py-2 file:mr-3 file:rounded file:text-sm hover:file:bg-gray-600 transition-colors">
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Order Items -->
-            <section class="border border-gray-600 p-6">
-                <h2 class="text-2xl font-calligraphy font-bold mb-6 border-b border-gray-700 pb-2">Order Items</h2>
-                <div id="productsContainer" class="space-y-4"></div>
-                
-                <button type="button" onclick="addProduct()" 
-                        class="mt-6 bg-black border border-gray-600 text-white px-6 py-3 hover:border-white hover:bg-gray-900 transition-colors">
-                    Add Item
-                </button>
-
-                <!-- Order Total -->
-                <div class="mt-6 p-4 bg-gray-900 border border-gray-600">
-                    <div class="flex justify-between items-center">
-                        <span class="text-xl font-calligraphy font-bold text-white">Order Total:</span>
-                        <span class="text-2xl font-bold text-white" id="orderTotal">₴0.00</span>
                     </div>
                 </div>
             </section>
