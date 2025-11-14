@@ -1,6 +1,6 @@
-# Notion Order Form
+# Ghostlab
 
-Custom form to create orders with multiple products in Notion.
+Client portal for custom merchandise orders with Supabase backend.
 
 ## Setup
 
